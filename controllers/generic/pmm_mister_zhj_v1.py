@@ -58,6 +58,7 @@ class PMMisterConfig(ControllerConfigBase):
     # LONG: buys accumulate, sells reduce. SHORT: sells accumulate, buys reduce.
     position_side: TradeType = Field(default="BUY")
     take_profit: Optional[Decimal] = Field(default=Decimal("0.0001"), gt=0, json_schema_extra={"is_updatable": True})
+    trailing_stop: Optional[TrailingStop] = Field(default=None, json_schema_extra={"is_updatable": True})
     take_profit_order_type: Optional[OrderType] = Field(default=OrderType.LIMIT_MAKER, json_schema_extra={"is_updatable": True})
     open_order_type: Optional[OrderType] = Field(default=OrderType.LIMIT_MAKER, json_schema_extra={"is_updatable": True})
     max_active_executors_by_level: Optional[int] = Field(default=4, json_schema_extra={"is_updatable": True})
