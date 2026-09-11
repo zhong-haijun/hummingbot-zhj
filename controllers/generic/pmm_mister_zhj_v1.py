@@ -17,7 +17,7 @@ from hummingbot.core.data_type.common import (
 from hummingbot.strategy_v2.controllers.controller_base import ControllerBase, ControllerConfigBase
 from hummingbot.strategy_v2.executors.data_types import ConnectorPair
 from hummingbot.strategy_v2.executors.order_executor.data_types import ExecutionStrategy, OrderExecutorConfig
-from hummingbot.strategy_v2.executors.position_executor.data_types import PositionExecutorConfig, TripleBarrierConfig
+from hummingbot.strategy_v2.executors.position_executor.data_types import PositionExecutorConfig, TrailingStop, TripleBarrierConfig
 from hummingbot.strategy_v2.models.executor_actions import CreateExecutorAction, ExecutorAction, StopExecutorAction
 from hummingbot.strategy_v2.utils.common import parse_comma_separated_list, parse_enum_value
 
@@ -84,6 +84,19 @@ class PMMisterConfig(ControllerConfigBase):
             if v == "":
                 return None
             return Decimal(v)
+        return v
+        
+    @field_validator("trailing_stop", mode="before")
+    @classmethod
+    def parse_trailing_stop(cls, v):
+        if v is None or v == "":
+            return None
+        if isinstance(v, str):
+            activation_price, trailing_delta = v.split(",")
+            return TrailingStop(
+                activation_price=Decimal(activation_price),
+                trailing_delta=Decimal(trailing_delta),
+            )
         return v
 
     @field_validator('take_profit_order_type', mode="before")
@@ -186,7 +199,7 @@ class PMMisterConfig(ControllerConfigBase):
 
         return TripleBarrierConfig(
             take_profit=self.take_profit,
-            trailing_stop=None,
+            trailing_stop=self.trailing_stop,
             open_order_type=open_order_type,
             take_profit_order_type=take_profit_order_type,
             stop_loss_order_type=OrderType.MARKET,
